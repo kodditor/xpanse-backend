@@ -12,7 +12,7 @@ import {
   serverSuccessResponse,
 } from 'src/common/entities/ServerResponse.entity';
 import { GroupsService } from './groups.service';
-import { Group, Prisma } from '@prisma/client';
+import { Group, Member, Prisma } from '@prisma/client';
 
 @Controller('groups')
 export class GroupsController {
@@ -24,7 +24,7 @@ export class GroupsController {
       const data = await this.GroupService.getGroups();
       return serverSuccessResponse<Group[]>(data);
     } catch (err) {
-      serverErrorResponse(err, 500);
+      return serverErrorResponse(err, 500);
     }
   }
 
@@ -34,7 +34,7 @@ export class GroupsController {
       const data = await this.GroupService.findGroup({ id: Number(id) });
       return serverSuccessResponse<Group>(data);
     } catch (err) {
-      serverErrorResponse(err, 500);
+      return serverErrorResponse(err, 500);
     }
   }
 
@@ -44,7 +44,7 @@ export class GroupsController {
       const data = await this.GroupService.createGroup(postBody);
       return serverSuccessResponse<Group>(data);
     } catch (err) {
-      serverErrorResponse(err, 500);
+      return serverErrorResponse(err, 500);
     }
   }
 
@@ -62,11 +62,25 @@ export class GroupsController {
       );
       return serverSuccessResponse<Group>(data);
     } catch (err) {
-      serverErrorResponse(err, 500);
+      return serverErrorResponse(err, 500);
     }
   }
 
-  // TODO: Add functionality to link member to a group.
+  @Get(':groupId/addMember/:memberId')
+  async addMemberToGroup(
+    @Param('groupId') groupId: string,
+    @Param('memberId') memberId: string,
+  ) {
+    try {
+      const data = await this.GroupService.linkMemberToGroup(
+        Number(groupId),
+        Number(memberId),
+      );
+      return serverSuccessResponse<[Group, Member]>(data);
+    } catch (err) {
+      return serverErrorResponse(err, 500);
+    }
+  }
 
   @Delete(':id')
   async deleteGroup(@Param('id') id: string) {
@@ -74,7 +88,7 @@ export class GroupsController {
       const data = await this.GroupService.deleteGroup({ id: Number(id) });
       return serverSuccessResponse<Group>(data);
     } catch (err) {
-      serverErrorResponse(err, 500);
+      return serverErrorResponse(err, 500);
     }
   }
 }

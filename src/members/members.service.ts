@@ -11,13 +11,22 @@ export class MembersService {
   }
 
   async getMembers(): Promise<Member[]> {
-    return this.db.member.findMany();
+    return this.db.member.findMany({
+      include: {
+        groups: true,
+      },
+    });
   }
 
   async findMember(
     where: Prisma.MemberWhereUniqueInput,
   ): Promise<Member | null> {
-    return this.db.member.findUnique({ where });
+    return this.db.member.findUnique({
+      where,
+      include: {
+        groups: true,
+      },
+    });
   }
 
   async updateMember(
@@ -26,7 +35,13 @@ export class MembersService {
   ): Promise<Member | null> {
     return this.db.member.update({
       where,
-      data,
+      data: {
+        ...data,
+        updateAt: new Date(),
+      },
+      include: {
+        groups: true,
+      },
     });
   }
 
